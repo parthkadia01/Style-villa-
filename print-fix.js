@@ -1,6 +1,15 @@
 (function(){
   function esc(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]));}
   function jsSafe(s){return String(s??'').replace(/\\/g,'\\\\').replace(/'/g,"\\'").replace(/\n/g,' ');}
+  function barcodeSvg(value){
+    try{
+      if(typeof window.JsBarcode!=='function')return '';
+      const svg=document.createElementNS('http://www.w3.org/2000/svg','svg');
+      svg.setAttribute('class','bag-barcode');
+      window.JsBarcode(svg,String(value||''),{format:'CODE128',displayValue:false,margin:0,height:48,width:1.45});
+      return svg.outerHTML;
+    }catch(e){return '';}
+  }
   function build(no,items,bill,customer,source){
     const rows=items.map((it,i)=>({it,s:source[i]||{},i}));
     let h='<!doctype html><html><head><meta charset="utf-8"><title>Fashion Factory Labels</title><style>'+
@@ -44,7 +53,7 @@
         '<div class="bill-value">'+esc(billValue)+'</div>'+ 
         '<div class="info">DELIVERY: '+esc(s.delivery_date||'—')+'</div>'+ 
         '<div class="qty">QTY: '+esc(s.quantity||1)+'</div>'+ 
-        '<svg class="bag-barcode" id="b'+i+'"></svg>'+ 
+        barcodeSvg(billValue)+
         '<div class="bag-human">'+esc(billValue)+'</div>'+ 
       '</div>';
       h+='<div class="label">'+
@@ -69,9 +78,12 @@
       }
       h+='<div class="date">DELIVERY: '+esc(s.delivery_date||'—')+'</div></div></div>';
     });
-    h+='<script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.6/dist/JsBarcode.all.min.js"></script><script>window.onload=function(){';
-    rows.forEach(({i})=>{h+="JsBarcode('#b"+i+"','"+jsSafe(bill||'')+"',{format:'CODE128',displayValue:false,margin:0,height:47,width:1.45});";});
-    h+='setTimeout(function(){window.print()},700)}<\\/script></body></html>';return h;
+    h+='</body></html>';return h;
   }
-  window.printLabels=function(no,items,bill,customer,source){const w=window.open('','_blank','width=1000,height=700');if(!w){alert('Allow pop-ups to print labels.');return;}w.document.write(build(no,items,bill,customer,source));w.document.close();};
+  window.printLabels=function(no,items,bill,customer,source){
+    const w=window.open('','_blank','width=1000,height=700');
+    if(!w){alert('Allow pop-ups to print labels.');return;}
+    w.document.write(build(no,items,bill,customer,source));w.document.close();
+    setTimeout(()=>w.print(),500);
+  };
 })();
