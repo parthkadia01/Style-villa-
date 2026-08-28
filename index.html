@@ -8,6 +8,7 @@
   <link rel="manifest" href="manifest.webmanifest" />
   <link rel="stylesheet" href="styles.css?v=20260828-2" />
   <link rel="stylesheet" href="dashboard-ui.css?v=20260828-2" />
+  <link rel="stylesheet" href="showroom-dashboard-patch.css?v=20260828-1" />
   <title>Fashion Factory • Alteration Management</title>
 </head>
 <body>
@@ -21,8 +22,8 @@
   <script src="reprint.js?v=20260827-2"></script>
   <script src="ux-patch.js?v=20260828-2"></script>
   <script src="dashboard-runtime.js?v=20260828-qa4"></script>
+  <script src="showroom-dashboard-patch.js?v=20260828-1"></script>
   <script>
-    // Versioned registration forces an existing older Service Worker to update.
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker.register('./sw.js?v=20260828-4', { updateViaCache: 'none' })
         .then(reg => reg.update())
