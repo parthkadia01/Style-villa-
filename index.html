@@ -6,20 +6,28 @@
   <meta name="theme-color" content="#06376b" />
   <meta name="description" content="Fashion Factory Alteration Management System" />
   <link rel="manifest" href="manifest.webmanifest" />
-  <link rel="stylesheet" href="styles.css" />
-  <link rel="stylesheet" href="dashboard-ui.css?v=20260828-1" />
+  <link rel="stylesheet" href="styles.css?v=20260828-2" />
+  <link rel="stylesheet" href="dashboard-ui.css?v=20260828-2" />
   <title>Fashion Factory • Alteration Management</title>
 </head>
 <body>
   <div id="app"></div>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.6/dist/JsBarcode.all.min.js"></script>
-  <script src="config.js"></script>
-  <script src="app.js?v=20260828-dashboard1"></script>
-  <script src="print-fix.js?v=20260828-3"></script>
-  <script src="dashboard-ui.js?v=20260828-2"></script>
-  <script src="reprint.js?v=20260827-1"></script>
-  <script src="ux-patch.js?v=20260828-1"></script>
-  <script src="dashboard-runtime.js?v=20260828-qa3"></script>
+  <script src="config.js?v=20260828-1"></script>
+  <script src="app.js?v=20260828-dashboard2"></script>
+  <script src="print-fix.js?v=20260828-4"></script>
+  <script src="dashboard-ui.js?v=20260828-3"></script>
+  <script src="reprint.js?v=20260827-2"></script>
+  <script src="ux-patch.js?v=20260828-2"></script>
+  <script src="dashboard-runtime.js?v=20260828-qa4"></script>
+  <script>
+    // Versioned registration forces an existing older Service Worker to update.
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('./sw.js?v=20260828-4', { updateViaCache: 'none' })
+        .then(reg => reg.update())
+        .catch(() => {});
+    }
+  </script>
 </body>
 </html>
