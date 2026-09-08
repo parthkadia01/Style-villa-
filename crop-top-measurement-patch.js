@@ -16,7 +16,29 @@
   document.addEventListener('submit',cropTopSubmit,true);
   let cardJobsPromise=null;
   async function patchCards(){
-    if(!document.querySelector('.job'))return;
-    try{cardJobsPromise=cardJobsPromise||callApi('list_jobs');const r=await cardJobsPromise;const jobs=r.jobs||[];document.querySelectorAll('.job').forEach(card=>{const item=card.querySelector('.item')?.textContent||'';if(!/Crop Top/i.test(item))return;const target=card.querySelector('.other-measure');if(!target||target.dataset.cropTopRendered==='1')return;const head=card.querySelector('.job-no')?.textContent||'';const mm=head.match(/ALT-(\d+)\s*•\s*ITEM\s*(\d+)/i);const j=jobs.find(x=>mm&&String(x.alteration?.alteration_no).padStart(4,'0')===mm[1]&&String(x.item_no)===mm[2]);if(!j)return;const m=j.measurements||{};target.innerHTML='<div class="four-measure-view crop-top-four-measure-view"><div><span>F</span><b>'+esc(m.f1||'—')+'</b></div><div><span>F</span><b>'+esc(m.f2||'—')+'</b></div><div><span>S</span><b>'+esc(m.s1||'—')+'</b></div><div><span>S</span><b>'+esc(m.s2||'—')+'</b></div></div>';target.dataset.cropTopRendered='1'})}catch(_){}}
+    const cards=[...document.querySelectorAll('.job')];
+    if(!cards.length)return;
+    try{
+      cardJobsPromise=cardJobsPromise||callApi('list_jobs');
+      const r=await cardJobsPromise;
+      const list=r.jobs||[];
+      cards.forEach(card=>{
+        if(!/Crop Top/i.test(card.textContent||''))return;
+        const idMatch=(card.textContent||'').match(/ALT-(\d+)\s*•\s*ITEM\s*(\d+)/i);
+        if(!idMatch)return;
+        const j=list.find(x=>String(x.alteration?.alteration_no||'').padStart(4,'0')===idMatch[1]&&String(x.item_no)===idMatch[2]);
+        if(!j)return;
+        const m=j.measurements||{};
+        const heading=[...card.querySelectorAll('*')].find(el=>el.children.length===0&&el.textContent.trim()==='MEASUREMENTS');
+        if(!heading)return;
+        const parent=heading.parentElement;
+        const target=[...parent.children].find(el=>el!==heading&&el.textContent.trim());
+        if(!target)return;
+        if(target.dataset.cropTopRendered==='1')return;
+        target.innerHTML='<div class="four-measure-view crop-top-four-measure-view"><div><span>F</span><b>'+esc(m.f1||'—')+'</b></div><div><span>F</span><b>'+esc(m.f2||'—')+'</b></div><div><span>S</span><b>'+esc(m.s1||'—')+'</b></div><div><span>S</span><b>'+esc(m.s2||'—')+'</b></div></div>';
+        target.dataset.cropTopRendered='1';
+      });
+    }catch(_){}
+  }
   const mo=new MutationObserver(()=>{renderEditors();patchCards()});mo.observe(document.body,{childList:true,subtree:true});setTimeout(()=>{renderEditors();patchCards()},0);
 })();
