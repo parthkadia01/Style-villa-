@@ -15,6 +15,16 @@
     btn.disabled=true;btn.textContent='Saving…';try{const r=await callApi('create_job',{job:{customer:fd.get('customer'),mobile:fd.get('mobile'),bill:fd.get('bill'),items}});for(let i=0;i<r.items.length;i++){const file=editors[i].querySelector('.i-photo')?.files?.[0];if(file)await callApi('upload_photo',{item_id:r.items[i].id,data_url:await compressPhoto(file)})}if(typeof window.loadData==='function')await window.loadData();if(typeof window.printLabels==='function')window.printLabels(r.alteration.alteration_no,r.items,fd.get('bill'),fd.get('customer'),items);if(typeof window.render==='function')window.render()}catch(x){alert(x.message||'Could not save');btn.disabled=false;btn.textContent='SAVE & PRINT LABELS'}}
   document.addEventListener('submit',cropTopSubmit,true);
   let cardJobsPromise=null;
+  function moveMeasurementsAfterNote(card,measurementBlock){
+    if(!card||!measurementBlock)return;
+    let wrap=measurementBlock;
+    while(wrap.parentElement&&wrap.parentElement!==card)wrap=wrap.parentElement;
+    const noteLeaf=[...card.querySelectorAll('*')].find(el=>el.children.length===0&&el.textContent.trim()==='IMPORTANT NOTE');
+    if(!noteLeaf)return;
+    let note=noteLeaf;
+    while(note.parentElement&&note.parentElement!==card)note=note.parentElement;
+    if(note&&wrap&&wrap!==note&&wrap.parentElement===card){note.insertAdjacentElement('afterend',wrap);wrap.style.order='';wrap.style.gridColumn='1 / -1';}
+  }
   async function patchCards(){
     const cards=[...document.querySelectorAll('.job')];
     if(!cards.length)return;
@@ -34,9 +44,9 @@
         const parent=heading.parentElement;
         const target=[...parent.children].find(el=>el!==heading&&el.textContent.trim());
         if(!target)return;
-        if(target.dataset.cropTopRendered==='1')return;
         target.innerHTML='<div class="four-measure-view crop-top-four-measure-view"><div><span>F</span><b>'+esc(m.f1||'—')+'</b></div><div><span>F</span><b>'+esc(m.f2||'—')+'</b></div><div><span>S</span><b>'+esc(m.s1||'—')+'</b></div><div><span>S</span><b>'+esc(m.s2||'—')+'</b></div></div>';
         target.dataset.cropTopRendered='1';
+        moveMeasurementsAfterNote(card,target);
       });
     }catch(_){}
   }
