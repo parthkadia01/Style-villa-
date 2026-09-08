@@ -53,6 +53,14 @@
   function tailorNotes(){
     if(user?.role!=='tailor')return;
     $$('#list .job').forEach(card=>{
+      const buttons=card.querySelectorAll('[data-next][data-status]');
+      buttons.forEach(b=>{
+        const s=b.getAttribute('data-status');
+        if(s==='in_progress'||s==='ready'){
+          b.textContent='DELIVER TO SHOWROOM';
+          b.setAttribute('data-status','returned_to_showroom');
+        }
+      });
       if(card.querySelector('.ff-tailor-note'))return;
       const key=card.querySelector('.job-no')?.textContent||'';
       const m=key.match(/ALT-(\d+)\s*•\s*ITEM\s*(\d+)/i);if(!m)return;
@@ -66,7 +74,6 @@
 
   function restoreScroll(y){requestAnimationFrame(()=>requestAnimationFrame(()=>window.scrollTo({top:y,behavior:'auto'})))}
 
-  // Capture before dashboard-runtime.js so status changes stay in-place and keep scroll position.
   document.addEventListener('click',async e=>{
     const b=e.target.closest('[data-next]');
     if(!b||b.dataset.uxBusy)return;
